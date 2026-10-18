@@ -1,0 +1,12 @@
+{
+  "name": "mindpilot-ai",
+  "version": "1.0.0",
+  "description": "Notes in, Quiz out AI powered learning tool.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["ai", "quiz", "education"],
+  "author": "",
+  "license": "MIT"
+}

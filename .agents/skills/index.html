@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindPilot AI - Smart Study Companion</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">
+      <b>MindPilot</b><i>AI</i>
+    </h1>
+    <div class="top-actions">
+      <span class="lab tagline">Notes in. Quiz out.</span>
+      <button class="btn sm" id="themeToggle" type="button">🌙 Dark Mode</button>
+    </div>
+  </header>
+
+  <main class="desk">
+    <!-- Left Panel: Notes & Input -->
+    <section class="panel notes" aria-label="Notes and settings">
+      <h2 class="ph">Your Study Notes</h2>
+      <p class="muted">Paste your study notes below to generate an interactive quiz with auto-save.</p>
+      <div>
+        <label class="lab" for="notesField" style="display:block;margin-bottom:8px">Notes or Topic</label>
+        <textarea id="notesField" class="field" placeholder="Paste your notes here, or type a topic (e.g. Causes of World War 1)..."></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn primary" id="genBtn" type="button">✨ Generate Quiz</button>
+        <button class="btn ghost sm" id="clearBtn" type="button">🗑️ Clear Notes</button>
+      </div>
+    </section>
+
+    <!-- Right Panel: Interactive Stage / Quiz / Analytics -->
+    <section class="stage" id="stage" aria-label="Quiz Stage">
+      <div class="card" id="quizCard">
+        <div id="quizHeader">
+          <span class="lab" id="quizMeta">Interactive Quiz</span>
+          <h2 class="dtitle" id="quizTitle">Getting Started with MindPilot</h2>
+          <p class="muted" id="quizDesc">Click start to test your knowledge.</p>
+        </div>
+
+        <div id="quizContent">
+          <button class="btn primary" id="startBtn" type="button">🚀 Start Quiz</button>
+        </div>
+
+        <!-- Analytics & Score Dashboard -->
+        <div id="analytics" class="analytics-card" style="display: none;">
+          <h3 class="sh3">📊 Quiz Performance Summary</h3>
+          <div class="score-circle">
+            <span id="scorePct">0%</span>
+            <small>Accuracy Score</small>
+          </div>
+          <p id="scoreMessage" class="muted" style="text-align: center; margin-top: 10px;"></p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-num" id="totalQs">0</span>
+              <span class="stat-label">Total Questions</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="correctAnswers">0</span>
+              <span class="stat-label">Correct Answers</span>
+            </div>
+          </div>
+          <button class="btn primary" id="retryBtn" type="button" style="margin-top:15px; width:100%;">🔄 Retry Quiz</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
