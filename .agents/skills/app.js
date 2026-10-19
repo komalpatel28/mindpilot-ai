@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let userScore = 0;
   let currentCardIndex = 0;
 
-  // 1. Focus Timer
+  // Focus Timer
   let timerTime = 25 * 60;
   let timerInterval = null;
   const timerDisplay = document.getElementById('timerDisplay');
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 2. Mode Switching
+  // Tabs
   tabQuiz.addEventListener('click', () => {
     tabQuiz.classList.add('active');
     tabCards.classList.remove('active');
@@ -58,68 +58,66 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFlashcard();
   });
 
-  // 3. Audio Text-To-Speech
+  // Text-To-Speech
   function speakText(text) {
     if ('speechSynthesis' in window) {
       try {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1;
         window.speechSynthesis.speak(utterance);
       } catch (e) {
-        console.log("Speech error:", e);
+        console.log("TTS Error:", e);
       }
     }
   }
 
-  // 4. Dynamic Generator with Randomized Correct Answers
+  // Quiz Generator from Notes
   function generateQuizFromNotes(text) {
     const cleanText = (text || '').trim();
-    if (!cleanText || cleanText.length < 5) {
+    if (cleanText.length < 5) {
       return [
         {
-          q: "What is the main takeaway from your study notes?",
+          q: "What is the primary focus of your study notes?",
           options: ["Core Fundamentals & Key Concepts", "Unrelated Detail", "Secondary Information", "General Overview"],
           answer: 0,
           explanation: "Notes highlight core fundamentals and key concepts."
+        },
+        {
+          q: "Why is regular practice important in learning?",
+          options: ["Enhances long-term memory & retention", "Wastes valuable time", "Creates confusion", "No impact"],
+          answer: 0,
+          explanation: "Regular practice strengthens neural connections and improves retention."
         }
       ];
     }
 
-    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 6);
+    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 5);
     if (sentences.length === 0) sentences = [cleanText];
 
     return sentences.map((sentence, idx) => {
-      const words = sentence.split(' ');
-      const keyWord = words.find(w => w.length > 4) || words[0] || 'Topic';
-
       let options = [
-        `Focuses heavily on ${keyWord}`,
-        `An unrelated minor detail`,
-        `Secondary background context`,
-        `None of the above points`
+        `Core concept from: ${sentence.slice(0, 35)}...`,
+        `An unrelated distractor topic`,
+        `Minor background reference`,
+        `None of the above options`
       ];
-
-      // Randomize correct answer position (0 to 3)
-      const correctIndex = idx % 4;
+      const correctIdx = idx % 4;
       const temp = options[0];
-      options[0] = options[correctIndex];
-      options[correctIndex] = temp;
+      options[0] = options[correctIdx];
+      options[correctIdx] = temp;
 
       return {
-        q: `Based on your notes: "${sentence.slice(0, 60)}${sentence.length > 60 ? '...' : ''}", what is the key point?`,
+        q: `Based on your notes: "${sentence.slice(0, 55)}..."`,
         options: options,
-        answer: correctIndex,
-        explanation: `Full detail: "${sentence}"`
+        answer: correctIdx,
+        explanation: `Reference detail: "${sentence}"`
       };
     }).slice(0, 6);
   }
 
-  // Flashcards Logic
+  // Flashcard Logic
   const flashcard = document.getElementById('flashcard');
-  flashcard.addEventListener('click', () => {
-    flashcard.classList.toggle('flipped');
-  });
+  flashcard.addEventListener('click', () => flashcard.classList.toggle('flipped'));
 
   function renderFlashcard() {
     if (!dynamicQuiz.length) dynamicQuiz = generateQuizFromNotes(notesField.value);
@@ -131,89 +129,81 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('nextCard').addEventListener('click', () => {
-    if (currentCardIndex < dynamicQuiz.length - 1) {
-      currentCardIndex++;
-      renderFlashcard();
-    }
+    if (currentCardIndex < dynamicQuiz.length - 1) { currentCardIndex++; renderFlashcard(); }
   });
-
   document.getElementById('prevCard').addEventListener('click', () => {
-    if (currentCardIndex > 0) {
-      currentCardIndex--;
-      renderFlashcard();
-    }
+    if (currentCardIndex > 0) { currentCardIndex--; renderFlashcard(); }
   });
 
-  // Quiz Execution Logic
-  startBtn.addEventListener('click', prepareAndStartQuiz);
-  document.getElementById('retryBtn').addEventListener('click', prepareAndStartQuiz);
+  // Quiz Engine
+  startBtn.addEventListener('click', startQuiz);
+  document.getElementById('retryBtn').addEventListener('click', startQuiz);
 
-  function prepareAndStartQuiz() {
-    const notes = notesField.value.trim();
-    dynamicQuiz = generateQuizFromNotes(notes);
+  function startQuiz() {
+    dynamicQuiz = generateQuizFromNotes(notesField.value);
     currentQIndex = 0;
     userScore = 0;
     analytics.style.display = 'none';
     flashcardContent.style.display = 'none';
     quizContent.style.display = 'block';
-    showQuestion();
+    renderQuestion();
   }
 
-  function showQuestion() {
+  function renderQuestion() {
     if (currentQIndex >= dynamicQuiz.length) {
       showAnalytics();
       return;
     }
 
-    const qData = dynamicQuiz[currentQIndex];
+    const q = dynamicQuiz[currentQIndex];
     quizContent.innerHTML = `
-      <div style="margin-bottom:16px;">
+      <div style="margin-bottom:16px; overflow:hidden;">
         <span class="icon-chip">Question ${currentQIndex + 1} of ${dynamicQuiz.length}</span>
-        <button class="speak-btn" id="listenQBtn" type="button">🔊 Listen</button>
-        <h3 style="margin: 10px 0 0; font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.4;">${qData.q}</h3>
+        <button class="speak-btn" id="speakQ" type="button">🔊 Listen</button>
+        <h3 style="margin: 10px 0 0; font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.4;">${q.q}</h3>
       </div>
-      <div id="optionsContainer">
-        ${qData.options.map((opt, i) => `
-          <button class="opt-btn" type="button" data-index="\${i}">
-            <span><b>${String.fromCharCode(65 + i)}.</b>${opt}</span>
+      <div id="optionsList">
+        ${q.options.map((opt, i) => `
+          <button class="opt-btn" type="button" data-id="\${i}">
+            <b>${String.fromCharCode(65 + i)}.</b>${opt}
           </button>
         `).join('')}
       </div>
     `;
 
-    const listenBtn = document.getElementById('listenQBtn');
-    if (listenBtn) {
-      listenBtn.addEventListener('click', () => speakText(qData.q));
-    }
+    document.getElementById('speakQ').addEventListener('click', () => speakText(q.q));
 
-    const optButtons = quizContent.querySelectorAll('.opt-btn');
-    optButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const btnClicked = e.currentTarget;
-        const selected = parseInt(btnClicked.getAttribute('data-index'), 10);
-        checkAnswer(selected, qData.answer, optButtons);
-      });
-    });
-  }
+    // Bulletproof Event Delegation for Options
+    const optionsContainer = document.getElementById('optionsList');
+    optionsContainer.addEventListener('click', function handleOptionClick(e) {
+      const btn = e.target.closest('.opt-btn');
+      if (!btn) return;
 
-  function checkAnswer(selected, correct, buttons) {
-    buttons.forEach(b => b.disabled = true);
-    if (selected === correct) {
-      buttons[selected].classList.add('correct');
-      userScore++;
-      speakText("Correct!");
-    } else {
-      buttons[selected].classList.add('wrong');
-      if (buttons[correct]) {
-        buttons[correct].classList.add('correct');
+      // Remove listener to prevent double clicks
+      optionsContainer.removeEventListener('click', handleOptionClick);
+
+      const selected = parseInt(btn.getAttribute('data-id'), 10);
+      const allButtons = optionsContainer.querySelectorAll('.opt-btn');
+
+      allButtons.forEach(b => b.disabled = true);
+
+      if (selected === q.answer) {
+        btn.classList.add('correct');
+        userScore++;
+        speakText("Correct!");
+      } else {
+        btn.classList.add('wrong');
+        if (allButtons[q.answer]) {
+          allButtons[q.answer].classList.add('correct');
+        }
+        speakText("Incorrect!");
       }
-      speakText("Incorrect!");
-    }
 
-    setTimeout(() => {
-      currentQIndex++;
-      showQuestion();
-    }, 1200);
+      setTimeout(() => {
+        currentQIndex++;
+        renderQuestion();
+      }, 1200);
+    });
   }
 
   function showAnalytics() {
@@ -230,16 +220,16 @@ document.addEventListener('DOMContentLoaded', () => {
       scoreRing.style.background = `conic-gradient(var(--primary) ${pct}%, var(--line) ${pct}%)`;
     }
 
-    document.getElementById('scoreMessage').textContent = pct >= 80 ? "🏆 Mastered! Excellent understanding." : "📚 Good try! Review flashcards to ace it.";
+    document.getElementById('scoreMessage').textContent = pct >= 80 ? "🏆 Excellent! You've mastered this topic." : "📚 Good effort! Review flashcards to improve.";
   }
 
   genBtn.addEventListener('click', () => {
-    const notes = notesField.value.trim();
-    if (!notes) { alert("Please paste some notes first!"); return; }
-    dynamicQuiz = generateQuizFromNotes(notes);
-    currentCardIndex = 0;
+    if (!notesField.value.trim()) {
+      alert("Please paste some notes first!");
+      return;
+    }
+    startQuiz();
     alert("✨ Quiz & Flashcards generated successfully!");
-    prepareAndStartQuiz();
   });
 
   // Local Storage & Theme
