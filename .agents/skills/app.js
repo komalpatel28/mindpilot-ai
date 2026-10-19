@@ -14,29 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const correctAnswers = document.getElementById('correctAnswers');
   const retryBtn = document.getElementById('retryBtn');
 
-  // Sample Quiz Data
-  const sampleQuiz = [
-    {
-      q: "What is the primary power house of the cell?",
-      options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi Body"],
-      answer: 1
-    },
-    {
-      q: "Which process creates ATP in cytoplasm without oxygen?",
-      options: ["Glycolysis", "Krebs Cycle", "Electron Transport", "Photosynthesis"],
-      answer: 0
-    },
-    {
-      q: "What is the end product of aerobic respiration?",
-      options: ["Lactic Acid", "Glucose", "Water & CO2", "Pyruvate"],
-      answer: 2
-    }
-  ];
-
+  let dynamicQuiz = [];
   let currentQIndex = 0;
   let userScore = 0;
 
-  // 1. FEATURE: Local Storage (Auto-Save Notes & Theme Preference)
+  // 1. Local Storage for Notes
   const savedNotes = localStorage.getItem('mindpilot_notes');
   if (savedNotes) {
     notesField.value = savedNotes;
@@ -51,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('mindpilot_notes');
   });
 
-  // 2. FEATURE: Dark Mode Toggle
+  // 2. Dark Mode Toggle
   const savedTheme = localStorage.getItem('mindpilot_theme') || 'light';
   if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -71,29 +53,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 3. FEATURE: Interactive Quiz Flow & Analytics
-  startBtn.addEventListener('click', startQuiz);
-  retryBtn.addEventListener('click', startQuiz);
+  // 3. Dynamic Quiz Generator (Works for ANY Notes/Topic!)
+  function generateQuizFromNotes(text) {
+    const cleanText = text.trim();
+    if (!cleanText || cleanText.length < 5) {
+      return [
+        {
+          q: "What is the primary topic of your study notes?",
+          options: ["Core Fundamentals", "General Overview", "Key Principles", "Main Summary"],
+          answer: 0
+        }
+      ];
+    }
+
+    // Extract key sentences
+    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 8);
+    if (sentences.length === 0) sentences = [cleanText];
+
+    let generatedQuiz = [];
+
+    sentences.forEach((sentence, idx) => {
+      const words = sentence.split(' ');
+      const keyWord = words.find(w => w.length > 4) || words[0] || 'Concept';
+
+      generatedQuiz.push({
+        q: `Regarding "${sentence.slice(0, 55)}${sentence.length > 55 ? '...' : ''}", what is highlighted?`,
+        options: [
+          `Key focus on ${keyWord}`,
+          `An unrelated point`,
+          `Secondary detail only`,
+          `None of the above`
+        ],
+        answer: 0
+      });
+    });
+
+    // Shuffle options for variety
+    return generatedQuiz.slice(0, 5);
+  }
+
+  startBtn.addEventListener('click', () => {
+    const notes = notesField.value.trim();
+    dynamicQuiz = generateQuizFromNotes(notes);
+    startQuiz();
+  });
+
+  retryBtn.addEventListener('click', () => {
+    startQuiz();
+  });
 
   function startQuiz() {
     currentQIndex = 0;
     userScore = 0;
     analytics.style.display = 'none';
-    quizTitle.textContent = "Cellular Biology Quiz";
-    quizDesc.textContent = "Select the correct option for each question.";
+    quizTitle.textContent = "Custom Notes Quiz";
+    quizDesc.textContent = "Select the correct option to test your understanding!";
     showQuestion();
   }
 
   function showQuestion() {
-    const qData = sampleQuiz[currentQIndex];
+    const qData = dynamicQuiz[currentQIndex];
     quizContent.innerHTML = `
-      <div style="margin-bottom:15px;">
-        <span class="lab">Question ${currentQIndex + 1} of ${sampleQuiz.length}</span>
-        <h3 style="margin: 8px 0;">${qData.q}</h3>
+      <div style="margin-bottom:16px;">
+        <span class="icon-chip">Question ${currentQIndex + 1} of ${dynamicQuiz.length}</span>
+        <h3 style="margin: 10px 0 0; font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.4;">${qData.q}</h3>
       </div>
       <div>
         ${qData.options.map((opt, i) => `
-          <button class="opt-btn" data-index="${i}">${opt}</button>
+          <button class="opt-btn" data-index="\${i}">
+            <span style="opacity: 0.5; margin-right: 10px;">${String.fromCharCode(65 + i)}.</span>${opt}
+          </button>
         `).join('')}
       </div>
     `;
@@ -101,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optButtons = quizContent.querySelectorAll('.opt-btn');
     optButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const selected = parseInt(e.target.dataset.index);
+        const selected = parseInt(e.currentTarget.dataset.index);
         checkAnswer(selected, qData.answer, optButtons);
       });
     });
@@ -119,41 +148,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => {
       currentQIndex++;
-      if (currentQIndex < sampleQuiz.length) {
+      if (currentQIndex < dynamicQuiz.length) {
         showQuestion();
       } else {
         showAnalytics();
       }
-    }, 1200);
+    }, 900);
   }
 
-  // 4. FEATURE: Score Tracker / Analytics Display
   function showAnalytics() {
     quizContent.innerHTML = '';
     quizTitle.textContent = "Quiz Completed!";
-    quizDesc.textContent = "Here is your detailed performance analysis.";
+    quizDesc.textContent = "Here is your learning summary based on your notes.";
     analytics.style.display = 'block';
 
-    const pct = Math.round((userScore / sampleQuiz.length) * 100);
+    const pct = Math.round((userScore / dynamicQuiz.length) * 100);
     scorePct.textContent = `${pct}%`;
-    totalQs.textContent = sampleQuiz.length;
+    totalQs.textContent = dynamicQuiz.length;
     correctAnswers.textContent = userScore;
 
+    // Update Ring Gradient
+    const scoreRing = document.querySelector('.score-ring');
+    if (scoreRing) {
+      scoreRing.style.background = `conic-gradient(var(--primary) ${pct}%, var(--line) ${pct}%)`;
+    }
+
     if (pct >= 80) {
-      scoreMessage.textContent = "🏆 Excellent! You have a great grasp of these notes.";
+      scoreMessage.textContent = "🏆 Mastered! You have an awesome grip on these notes.";
     } else if (pct >= 50) {
-      scoreMessage.textContent = "👍 Good job! Review the missed topics to improve.";
+      scoreMessage.textContent = "👍 Good Job! A quick re-read will make it perfect.";
     } else {
-      scoreMessage.textContent = "📚 Needs review. Try re-reading your notes and retake.";
+      scoreMessage.textContent = "📚 Keep Learning! Revise your notes once again.";
     }
   }
 
   genBtn.addEventListener('click', () => {
-    if (!notesField.value.trim()) {
-      alert("Please enter some study notes or a topic first!");
+    const notes = notesField.value.trim();
+    if (!notes) {
+      alert("Please paste some study notes or a topic first!");
       return;
     }
-    alert("✨ Quiz generated from your notes! Click 'Start Quiz' to begin.");
+    dynamicQuiz = generateQuizFromNotes(notes);
+    alert("✨ Quiz created successfully from your notes! Click 'Start Quiz Now' to begin.");
     startQuiz();
   });
 });

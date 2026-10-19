@@ -3,73 +3,99 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MindPilot AI - Smart Study Companion</title>
+<title>MindPilot AI - Fun & Smart Study Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="background-decor">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+</div>
+
 <div class="wrap">
   <header class="top">
-    <h1 class="brand">
-      <b>MindPilot</b><i>AI</i>
-    </h1>
+    <div class="brand">
+      <div class="logo-icon">🚀</div>
+      <div>
+        <b>MindPilot</b><i>AI</i>
+        <span class="tagline-badge">Study Made Fun! ✨</span>
+      </div>
+    </div>
     <div class="top-actions">
-      <span class="lab tagline">Notes in. Quiz out.</span>
-      <button class="btn sm" id="themeToggle" type="button">🌙 Dark Mode</button>
+      <button class="btn theme-btn" id="themeToggle" type="button">🌙 Dark Mode</button>
     </div>
   </header>
 
   <main class="desk">
-    <!-- Left Panel: Notes & Input -->
-    <section class="panel notes" aria-label="Notes and settings">
-      <h2 class="ph">Your Study Notes</h2>
-      <p class="muted">Paste your study notes below to generate an interactive quiz with auto-save.</p>
-      <div>
-        <label class="lab" for="notesField" style="display:block;margin-bottom:8px">Notes or Topic</label>
-        <textarea id="notesField" class="field" placeholder="Paste your notes here, or type a topic (e.g. Causes of World War 1)..."></textarea>
+    <!-- Left Panel: Notes Input -->
+    <section class="panel notes-panel">
+      <div class="panel-header">
+        <span class="icon-chip">📝 Step 1</span>
+        <h2>Paste Your Study Notes</h2>
+        <p class="muted">Paste any topic, chapter, or lecture notes. We'll turn them into a fun quiz!</p>
       </div>
+
+      <div class="field-container">
+        <textarea id="notesField" class="field" placeholder="Paste your study notes here (e.g. HTML tags, Photosynthesis, History events)..."></textarea>
+      </div>
+
       <div class="btn-group">
-        <button class="btn primary" id="genBtn" type="button">✨ Generate Quiz</button>
-        <button class="btn ghost sm" id="clearBtn" type="button">🗑️ Clear Notes</button>
+        <button class="btn primary-btn glow" id="genBtn" type="button">⚡ Generate Quiz</button>
+        <button class="btn ghost-btn" id="clearBtn" type="button">🗑️ Clear</button>
       </div>
     </section>
 
-    <!-- Right Panel: Interactive Stage / Quiz / Analytics -->
-    <section class="stage" id="stage" aria-label="Quiz Stage">
+    <!-- Right Panel: Quiz Stage & Scorecard -->
+    <section class="panel stage-panel" id="stage">
       <div class="card" id="quizCard">
-        <div id="quizHeader">
-          <span class="lab" id="quizMeta">Interactive Quiz</span>
-          <h2 class="dtitle" id="quizTitle">Getting Started with MindPilot</h2>
-          <p class="muted" id="quizDesc">Click start to test your knowledge.</p>
+        <div id="quizHeader" class="quiz-header">
+          <span class="icon-chip alt">🎯 Step 2</span>
+          <h2 id="quizTitle">Interactive Quiz Zone</h2>
+          <p class="muted" id="quizDesc">Ready to test your knowledge? Click below to start!</p>
         </div>
 
-        <div id="quizContent">
-          <button class="btn primary" id="startBtn" type="button">🚀 Start Quiz</button>
+        <div id="quizContent" class="quiz-content">
+          <div class="start-hero">
+            <div class="hero-emoji">🧠</div>
+            <button class="btn primary-btn big-btn" id="startBtn" type="button">🚀 Start Quiz Now</button>
+          </div>
         </div>
 
         <!-- Analytics & Score Dashboard -->
         <div id="analytics" class="analytics-card" style="display: none;">
-          <h3 class="sh3">📊 Quiz Performance Summary</h3>
-          <div class="score-circle">
-            <span id="scorePct">0%</span>
-            <small>Accuracy Score</small>
+          <div class="confetti-badge">🎉 Great Job!</div>
+          <h3 class="analytics-title">Your Learning Summary</h3>
+          
+          <div class="score-ring">
+            <div class="ring-inner">
+              <span id="scorePct">0%</span>
+              <small>Accuracy</small>
+            </div>
           </div>
-          <p id="scoreMessage" class="muted" style="text-align: center; margin-top: 10px;"></p>
+
+          <p id="scoreMessage" class="score-msg"></p>
+
           <div class="stats-grid">
             <div class="stat-box">
               <span class="stat-num" id="totalQs">0</span>
               <span class="stat-label">Total Questions</span>
             </div>
             <div class="stat-box">
-              <span class="stat-num" id="correctAnswers">0</span>
+              <span class="stat-num success" id="correctAnswers">0</span>
               <span class="stat-label">Correct Answers</span>
             </div>
           </div>
-          <button class="btn primary" id="retryBtn" type="button" style="margin-top:15px; width:100%;">🔄 Retry Quiz</button>
+
+          <button class="btn primary-btn full-btn" id="retryBtn" type="button">🔄 Retake Quiz</button>
         </div>
       </div>
     </section>
   </main>
 </div>
+
 <script src="app.js"></script>
 </body>
 </html>
