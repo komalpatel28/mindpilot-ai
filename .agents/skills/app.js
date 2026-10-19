@@ -1,39 +1,139 @@
-// Foolproof Quiz Generator
-  function generateQuizFromNotes(text) {
-    const cleanText = (text || '').trim();
-    
-    // Agar notes khali bhi hon, tab bhi default questions load honge
-    if (cleanText.length < 3) {
-      return [
+document.addEventListener('DOMContentLoaded', () => {
+  const notesField = document.getElementById('notesField');
+  const genBtn = document.getElementById('genBtn');
+  const startBtn = document.getElementById('startBtn');
+  const retryBtn = document.getElementById('retryBtn');
+  const quizContent = document.getElementById('quizContent');
+  const flashcardContent = document.getElementById('flashcardContent');
+  const analytics = document.getElementById('analytics');
+  const tabQuiz = document.getElementById('tabQuiz');
+  const tabCards = document.getElementById('tabCards');
+  const themeToggle = document.getElementById('themeToggle');
+
+  let questions = [
+    {
+      q: "What is MindPilot AI designed for?",
+      options: ["Smart interactive learning & quizzes", "Video editing", "Photo sharing", "Weather tracking"],
+      answer: 0
+    },
+    {
+      q: "Why is active recall effective?",
+      options: ["Improves memory retention", "Wastes time", "Has no effect", "Creates confusion"],
+      answer: 0
+    }
+  ];
+
+  let currentQ = 0;
+  let score = 0;
+  let cardIdx = 0;
+
+  // Tabs
+  tabQuiz.addEventListener('click', () => {
+    tabQuiz.classList.add('active');
+    tabCards.classList.remove('active');
+    flashcardContent.style.display = 'none';
+    if(analytics.style.display !== 'block') quizContent.style.display = 'block';
+  });
+
+  tabCards.addEventListener('click', () => {
+    tabCards.classList.add('active');
+    tabQuiz.classList.remove('active');
+    quizContent.style.display = 'none';
+    analytics.style.display = 'none';
+    flashcardContent.style.display = 'block';
+    renderCard();
+  });
+
+  // Generate / Start
+  genBtn.addEventListener('click', startQuizSession);
+  startBtn.addEventListener('click', startQuizSession);
+  retryBtn.addEventListener('click', startQuizSession);
+
+  function startQuizSession() {
+    const text = notesField.value.trim();
+    if(text.length > 5) {
+      // Simple custom dynamic question from notes
+      questions = [
         {
-          q: "What is the primary objective of MindPilot AI?",
-          options: ["Smart interactive learning & quizzes", "Playing online video games", "Streaming movies", "Weather forecasting"],
-          answer: 0,
-          explanation: "MindPilot AI is designed to make studying interactive and fun through smart quizzes."
-        },
-        {
-          q: "Why is active note-taking and revision effective?",
-          options: ["Enhances long-term memory & concept retention", "Wastes time", "Creates confusion", "No impact"],
-          answer: 0,
-          explanation: "Active revision strengthens memory and deepens understanding."
+          q: "Based on your notes: " + text.slice(0, 40) + "...",
+          options: ["Core concept described in notes", "Unrelated topic", "Minor detail", "None"],
+          answer: 0
         }
       ];
     }
-
-    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 3);
-    if (sentences.length === 0) sentences = [cleanText];
-
-    return sentences.map((sentence) => {
-      return {
-        q: `Based on your notes: "${sentence.length > 50 ? sentence.slice(0, 50) + '...' : sentence}"`,
-        options: [
-          `Accurate key concept: ${sentence.length > 30 ? sentence.slice(0, 30) + '...' : sentence}`,
-          `An unrelated distractor concept`,
-          `Secondary background reference`,
-          `None of the above options`
-        ],
-        answer: 0, // Option 0 hamesha correct rahega
-        explanation: `Reference detail: "${sentence}"`
-      };
-    }).slice(0, 5);
+    currentQ = 0;
+    score = 0;
+    analytics.style.display = 'none';
+    flashcardContent.style.display = 'none';
+    quizContent.style.display = 'block';
+    renderQuestion();
   }
+
+  function renderQuestion() {
+    if (currentQ >= questions.length) {
+      quizContent.style.display = 'none';
+      analytics.style.display = 'block';
+      document.getElementById('scorePct').textContent = Math.round((score / questions.length) * 100) + '%';
+      return;
+    }
+
+    const qData = questions[currentQ];
+    quizContent.innerHTML = `
+      <h4>Question ${currentQ + 1} of ${questions.length}</h4>
+      <p><b>${qData.q}</b></p>
+      <div id="opts">
+        ${qData.options.map((opt, i) => `<button class="opt-btn" data-idx="${i}">${opt}</button>`).join('')}
+      </div>
+    `;
+
+    const optsDiv = document.getElementById('opts');
+    optsDiv.addEventListener('click', (e) => {
+      const btn = e.target.closest('.opt-btn');
+      if(!btn) return;
+
+      const selected = parseInt(btn.getAttribute('data-idx'));
+      const allBtns = optsDiv.querySelectorAll('.opt-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      if(selected === qData.answer) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        allBtns[qData.answer].classList.add('correct');
+      }
+
+      setTimeout(() => {
+        currentQ++;
+        renderQuestion();
+      }, 1000);
+    });
+  }
+
+  // Flashcards
+  function renderCard() {
+    document.getElementById('cardQuestion').textContent = questions[cardIdx].q;
+    document.getElementById('cardAnswer').textContent = "Correct Answer: " + questions[cardIdx].options[questions[cardIdx].answer];
+    document.getElementById('cardCounter').textContent = `${cardIdx + 1} / ${questions.length}`;
+  }
+
+  document.getElementById('nextCard').addEventListener('click', () => {
+    if(cardIdx < questions.length - 1) { cardIdx++; renderCard(); }
+  });
+  document.getElementById('prevCard').addEventListener('click', () => {
+    if(cardIdx > 0) { cardIdx--; renderCard(); }
+  });
+
+  const flashcard = document.getElementById('flashcard');
+  flashcard.addEventListener('click', () => {
+    const back = flashcard.querySelector('.card-back');
+    back.style.display = back.style.display === 'none' ? 'block' : 'none';
+  });
+
+  // Theme
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeToggle.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+  });
+});

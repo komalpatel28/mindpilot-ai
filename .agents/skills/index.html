@@ -4,128 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MindPilot AI - Interactive Study Hub</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="background-decor">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-  </div>
-
   <div class="wrap">
-    <!-- Top Header -->
     <header class="top">
       <div class="brand">
-        <div class="logo-icon">🚀</div>
-        <div>
-          <b>MindPilot</b><i>AI</i>
-          <span class="tagline-badge">Next-Gen Study Companion ✨</span>
-        </div>
+        <h2>🚀 MindPilot <span>AI</span></h2>
       </div>
-      <div class="top-actions">
-        <div class="timer-widget">
-          <span id="timerDisplay">25:00</span>
-          <button id="timerBtn" class="icon-btn" title="Start/Pause Timer">▶️</button>
-        </div>
-        <button class="btn theme-btn" id="themeToggle" type="button">🌙 Dark Mode</button>
-      </div>
+      <button class="btn theme-btn" id="themeToggle" type="button">🌙 Dark Mode</button>
     </header>
 
-    <!-- Main Workspace -->
     <main class="desk">
-      <!-- Notes Input Panel -->
-      <section class="panel notes-panel">
-        <div class="panel-header">
-          <span class="icon-chip">📝 Step 1</span>
-          <h2>Paste Your Study Notes</h2>
-          <p class="muted">Paste any topic or notes below to instantly generate quizzes and flashcards!</p>
-        </div>
-
-        <div class="field-container">
-          <textarea id="notesField" class="field" placeholder="Paste your study notes here (e.g., AI overview, Web Development, History, Science)..."></textarea>
-        </div>
-
-        <div class="btn-group">
-          <button class="btn primary-btn glow" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
-          <button class="btn ghost-btn" id="clearBtn" type="button">🗑️ Clear</button>
-        </div>
+      <section class="panel">
+        <h2>Paste Your Notes</h2>
+        <textarea id="notesField" class="field" placeholder="Paste your study notes here..."></textarea>
+        <button class="btn primary-btn" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
       </section>
 
-      <!-- Interactive Stage Panel -->
-      <section class="panel stage-panel" id="stage">
+      <section class="panel">
         <div class="mode-tabs">
-          <button class="tab-btn active" id="tabQuiz" type="button">🎯 Smart Quiz</button>
+          <button class="tab-btn active" id="tabQuiz" type="button">🎯 Quiz</button>
           <button class="tab-btn" id="tabCards" type="button">🎴 Flashcards</button>
         </div>
 
-        <div class="card" id="quizCard">
-          <!-- Initial Start Screen -->
-          <div id="quizContent" class="quiz-content">
-            <div class="start-hero">
-              <div class="hero-emoji">🧠</div>
-              <h3>Ready to Test Your Knowledge?</h3>
-              <p class="muted">Paste notes on the left and click below to start your interactive practice session.</p>
-              <button class="btn primary-btn big-btn" id="startBtn" type="button">🚀 Start Interactive Quiz</button>
+        <div id="quizContent">
+          <div class="start-hero">
+            <h3>Ready to Learn?</h3>
+            <button class="btn primary-btn" id="startBtn" type="button">Start Quiz</button>
+          </div>
+        </div>
+
+        <div id="flashcardContent" style="display: none;">
+          <div class="flashcard" id="flashcard">
+            <div class="card-front">
+              <p id="cardQuestion">Click Generate to start flashcards.</p>
+            </div>
+            <div class="card-back" style="display: none;">
+              <p id="cardAnswer">Answer here.</p>
             </div>
           </div>
-
-          <!-- Flashcards View -->
-          <div id="flashcardContent" class="flashcard-container" style="display: none;">
-            <div class="flashcard" id="flashcard">
-              <div class="card-inner">
-                <div class="card-front">
-                  <span class="card-tag">Concept Card</span>
-                  <p id="cardQuestion">Paste notes and click Generate to see Flashcards!</p>
-                  <span class="flip-hint">👆 Click card to flip & view answer</span>
-                </div>
-                <div class="card-back">
-                  <span class="card-tag success">Key Answer</span>
-                  <p id="cardAnswer">Answer explanation will appear here.</p>
-                </div>
-              </div>
-            </div>
-            <div class="card-nav">
-              <button class="btn ghost-btn" id="prevCard" type="button">← Previous</button>
-              <span id="cardCounter">1 / 1</span>
-              <button class="btn ghost-btn" id="nextCard" type="button">Next →</button>
-            </div>
+          <div class="card-nav">
+            <button class="btn" id="prevCard" type="button">Prev</button>
+            <span id="cardCounter">1 / 1</span>
+            <button class="btn" id="nextCard" type="button">Next</button>
           </div>
+        </div>
 
-          <!-- Analytics Dashboard -->
-          <div id="analytics" class="analytics-card" style="display: none;">
-            <div class="confetti-badge">🎉 Session Completed!</div>
-            <h3 class="analytics-title">Your Learning Analytics</h3>
-            
-            <div class="score-ring">
-              <div class="ring-inner">
-                <span id="scorePct">0%</span>
-                <small>Accuracy</small>
-              </div>
-            </div>
-
-            <p id="scoreMessage" class="score-msg"></p>
-
-            <div class="stats-grid">
-              <div class="stat-box">
-                <span class="stat-num" id="totalQs">0</span>
-                <span class="stat-label">Total Questions</span>
-              </div>
-              <div class="stat-box">
-                <span class="stat-num success" id="correctAnswers">0</span>
-                <span class="stat-label">Correct Answers</span>
-              </div>
-            </div>
-
-            <button class="btn primary-btn full-btn" id="retryBtn" type="button">🔄 Retake Quiz</button>
-          </div>
+        <div id="analytics" style="display: none; text-align: center;">
+          <h3>Quiz Finished!</h3>
+          <p>Your Score: <span id="scorePct">0%</span></p>
+          <button class="btn primary-btn" id="retryBtn" type="button">Retake Quiz</button>
         </div>
       </section>
     </main>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
