@@ -61,14 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Audio Text-To-Speech
   function speakText(text) {
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1;
-      window.speechSynthesis.speak(utterance);
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1;
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.log("Speech error:", e);
+      }
     }
   }
 
-  // 4. Dynamic Generator
+  // 4. Dynamic Generator with Randomized Correct Answers
   function generateQuizFromNotes(text) {
     const cleanText = (text || '').trim();
     if (!cleanText || cleanText.length < 5) {
@@ -85,22 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 6);
     if (sentences.length === 0) sentences = [cleanText];
 
-    return sentences.map((sentence) => {
+    return sentences.map((sentence, idx) => {
       const words = sentence.split(' ');
       const keyWord = words.find(w => w.length > 4) || words[0] || 'Topic';
 
+      let options = [
+        `Focuses heavily on ${keyWord}`,
+        `An unrelated minor detail`,
+        `Secondary background context`,
+        `None of the above points`
+      ];
+
+      // Randomize correct answer position (0 to 3)
+      const correctIndex = idx % 4;
+      const temp = options[0];
+      options[0] = options[correctIndex];
+      options[correctIndex] = temp;
+
       return {
-        q: `Based on your notes: "${sentence.slice(0, 50)}${sentence.length > 50 ? '...' : ''}", what is the key point?`,
-        options: [
-          `Focuses on ${keyWord}`,
-          `An irrelevant topic`,
-          `Minor background info`,
-          `None of the above`
-        ],
-        answer: 0,
+        q: `Based on your notes: "${sentence.slice(0, 60)}${sentence.length > 60 ? '...' : ''}", what is the key point?`,
+        options: options,
+        answer: correctIndex,
         explanation: `Full detail: "${sentence}"`
       };
-    }).slice(0, 5);
+    }).slice(0, 6);
   }
 
   // Flashcards Logic
@@ -148,6 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showQuestion() {
+    if (currentQIndex >= dynamicQuiz.length) {
+      showAnalytics();
+      return;
+    }
+
     const qData = dynamicQuiz[currentQIndex];
     quizContent.innerHTML = `
       <div style="margin-bottom:16px;">
@@ -164,9 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    document.getElementById('listenQBtn').addEventListener('click', () => speakText(qData.q));
+    const listenBtn = document.getElementById('listenQBtn');
+    if (listenBtn) {
+      listenBtn.addEventListener('click', () => speakText(qData.q));
+    }
 
-    // Attach robust Event Listeners to option buttons
     const optButtons = quizContent.querySelectorAll('.opt-btn');
     optButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -185,18 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
       speakText("Correct!");
     } else {
       buttons[selected].classList.add('wrong');
-      buttons[correct].classList.add('correct');
+      if (buttons[correct]) {
+        buttons[correct].classList.add('correct');
+      }
       speakText("Incorrect!");
     }
 
     setTimeout(() => {
       currentQIndex++;
-      if (currentQIndex < dynamicQuiz.length) {
-        showQuestion();
-      } else {
-        showAnalytics();
-      }
-    }, 1100);
+      showQuestion();
+    }, 1200);
   }
 
   function showAnalytics() {
@@ -209,7 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('correctAnswers').textContent = userScore;
 
     const scoreRing = document.querySelector('.score-ring');
-    if (scoreRing) scoreRing.style.background = `conic-gradient(var(--primary) ${pct}%, var(--line) ${pct}%)`;
+    if (scoreRing) {
+      scoreRing.style.background = `conic-gradient(var(--primary) ${pct}%, var(--line) ${pct}%)`;
+    }
 
     document.getElementById('scoreMessage').textContent = pct >= 80 ? "🏆 Mastered! Excellent understanding." : "📚 Good try! Review flashcards to ace it.";
   }
@@ -219,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!notes) { alert("Please paste some notes first!"); return; }
     dynamicQuiz = generateQuizFromNotes(notes);
     currentCardIndex = 0;
-    alert("✨ Quiz & Flashcards generated! Click 'Start Interactive Quiz' to begin.");
+    alert("✨ Quiz & Flashcards generated successfully!");
     prepareAndStartQuiz();
   });
 
