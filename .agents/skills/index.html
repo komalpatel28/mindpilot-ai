@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MindPilot AI - Interactive Study Hub</title>
+  <title>MindPilot AI - Next-Gen Interactive Study Hub</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,44 +17,48 @@
 
     <main class="desk">
       <section class="panel">
-        <h2>Paste Your Notes</h2>
-        <textarea id="notesField" class="field" placeholder="Paste your study notes here..."></textarea>
+        <h2>Paste Your Study Notes</h2>
+        <textarea id="notesField" class="field" placeholder="Paste a long paragraph or multiple lines of notes here..."></textarea>
         <button class="btn primary-btn" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
       </section>
 
       <section class="panel">
         <div class="mode-tabs">
-          <button class="tab-btn active" id="tabQuiz" type="button">🎯 Quiz</button>
+          <button class="tab-btn active" id="tabQuiz" type="button">🎯 Quiz Mode</button>
           <button class="tab-btn" id="tabCards" type="button">🎴 Flashcards</button>
         </div>
 
         <div id="quizContent">
           <div class="start-hero">
-            <h3>Ready to Learn?</h3>
-            <button class="btn primary-btn" id="startBtn" type="button">Start Quiz</button>
+            <h3>Ready to Test Your Knowledge?</h3>
+            <p style="color: var(--muted); margin: 10px 0 20px;">Generate notes on the left or click start below.</p>
+            <button class="btn primary-btn" id="startBtn" type="button">🚀 Start Quiz</button>
           </div>
         </div>
 
         <div id="flashcardContent" style="display: none;">
           <div class="flashcard" id="flashcard">
             <div class="card-front">
+              <span class="card-tag">Question / Concept</span>
               <p id="cardQuestion">Click Generate to start flashcards.</p>
+              <small style="color: var(--muted); display: block; margin-top: 10px;">👆 Click card to flip</small>
             </div>
             <div class="card-back" style="display: none;">
+              <span class="card-tag" style="color: var(--good);">Answer Explanation</span>
               <p id="cardAnswer">Answer here.</p>
             </div>
           </div>
           <div class="card-nav">
-            <button class="btn" id="prevCard" type="button">Prev</button>
+            <button class="btn ghost-btn" id="prevCard" type="button">← Prev</button>
             <span id="cardCounter">1 / 1</span>
-            <button class="btn" id="nextCard" type="button">Next</button>
+            <button class="btn ghost-btn" id="nextCard" type="button">Next →</button>
           </div>
         </div>
 
         <div id="analytics" style="display: none; text-align: center;">
-          <h3>Quiz Finished!</h3>
-          <p>Your Score: <span id="scorePct">0%</span></p>
-          <button class="btn primary-btn" id="retryBtn" type="button">Retake Quiz</button>
+          <h3>🎉 Study Session Complete!</h3>
+          <p style="font-size: 1.5rem; font-weight: bold; margin: 15px 0;">Your Score: <span id="scorePct" style="color: var(--primary);">0%</span></p>
+          <button class="btn primary-btn" id="retryBtn" type="button">🔄 Retake Quiz</button>
         </div>
       </section>
     </main>

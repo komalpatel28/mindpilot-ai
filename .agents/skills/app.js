@@ -12,13 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let questions = [
     {
-      q: "What is MindPilot AI designed for?",
-      options: ["Smart interactive learning & quizzes", "Video editing", "Photo sharing", "Weather tracking"],
+      q: "What is MindPilot AI primarily designed for?",
+      options: ["Smart interactive learning & quizzes", "Video game streaming", "Weather forecasting", "Photo editing"],
       answer: 0
     },
     {
-      q: "Why is active recall effective?",
-      options: ["Improves memory retention", "Wastes time", "Has no effect", "Creates confusion"],
+      q: "Why is active recall and testing beneficial?",
+      options: ["Enhances long-term memory & retention", "Wastes time", "Causes confusion", "No impact"],
+      answer: 0
+    },
+    {
+      q: "What format does MindPilot AI use for study flashcards?",
+      options: ["Interactive 3D flipped flashcards", "Static text lists", "Audio-only tapes", "Spreadsheets"],
       answer: 0
     }
   ];
@@ -27,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let score = 0;
   let cardIdx = 0;
 
-  // Tabs
+  // Tabs Switching
   tabQuiz.addEventListener('click', () => {
     tabQuiz.classList.add('active');
     tabCards.classList.remove('active');
@@ -44,23 +49,37 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCard();
   });
 
-  // Generate / Start
-  genBtn.addEventListener('click', startQuizSession);
+  // Dynamic Generator from Notes
+  function buildQuestionsFromNotes() {
+    const text = notesField.value.trim();
+    if (text.length > 5) {
+      let sentences = text.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 5);
+      if (sentences.length > 0) {
+        questions = sentences.map((sentence, idx) => ({
+          q: `Based on your notes: "${sentence.slice(0, 50)}..."`,
+          options: [
+            `Core concept: ${sentence.slice(0, 30)}...`,
+            `Unrelated distractor point`,
+            `Secondary background info`,
+            `None of the above`
+          ],
+          answer: 0
+        }));
+      }
+    }
+  }
+
+  genBtn.addEventListener('click', () => {
+    buildQuestionsFromNotes();
+    startQuizSession();
+    alert("✨ Quiz & Flashcards generated successfully from your notes!");
+  });
+
   startBtn.addEventListener('click', startQuizSession);
   retryBtn.addEventListener('click', startQuizSession);
 
   function startQuizSession() {
-    const text = notesField.value.trim();
-    if(text.length > 5) {
-      // Simple custom dynamic question from notes
-      questions = [
-        {
-          q: "Based on your notes: " + text.slice(0, 40) + "...",
-          options: ["Core concept described in notes", "Unrelated topic", "Minor detail", "None"],
-          answer: 0
-        }
-      ];
-    }
+    buildQuestionsFromNotes();
     currentQ = 0;
     score = 0;
     analytics.style.display = 'none';
@@ -79,10 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const qData = questions[currentQ];
     quizContent.innerHTML = `
-      <h4>Question ${currentQ + 1} of ${questions.length}</h4>
-      <p><b>${qData.q}</b></p>
+      <div style="margin-bottom: 12px; font-weight: bold; color: var(--muted); font-size: 0.85rem;">QUESTION ${currentQ + 1} OF ${questions.length}</div>
+      <p style="font-size: 1.05rem; font-weight: bold; margin-bottom: 15px; line-height: 1.4;">${qData.q}</p>
       <div id="opts">
-        ${qData.options.map((opt, i) => `<button class="opt-btn" data-idx="${i}">${opt}</button>`).join('')}
+        ${qData.options.map((opt, i) => `<button class="opt-btn" data-idx="\${i}"><b>${String.fromCharCode(65 + i)}.</b>${opt}</button>`).join('')}
       </div>
     `;
 
@@ -106,15 +125,21 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         currentQ++;
         renderQuestion();
-      }, 1000);
+      }, 1100);
     });
   }
 
-  // Flashcards
+  // Flashcards Logic
   function renderCard() {
+    buildQuestionsFromNotes();
+    if(cardIdx >= questions.length) cardIdx = 0;
     document.getElementById('cardQuestion').textContent = questions[cardIdx].q;
-    document.getElementById('cardAnswer').textContent = "Correct Answer: " + questions[cardIdx].options[questions[cardIdx].answer];
+    document.getElementById('cardAnswer').textContent = questions[cardIdx].options[questions[cardIdx].answer];
     document.getElementById('cardCounter').textContent = `${cardIdx + 1} / ${questions.length}`;
+    
+    // Reset view
+    document.querySelector('.card-front').style.display = 'flex';
+    document.querySelector('.card-back').style.display = 'none';
   }
 
   document.getElementById('nextCard').addEventListener('click', () => {
@@ -126,11 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const flashcard = document.getElementById('flashcard');
   flashcard.addEventListener('click', () => {
+    const front = flashcard.querySelector('.card-front');
     const back = flashcard.querySelector('.card-back');
-    back.style.display = back.style.display === 'none' ? 'block' : 'none';
+    if(front.style.display !== 'none') {
+      front.style.display = 'none';
+      back.style.display = 'block';
+    } else {
+      front.style.display = 'block';
+      back.style.display = 'none';
+    }
   });
 
-  // Theme
+  // Dark Mode Toggle
   themeToggle.addEventListener('click', () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
