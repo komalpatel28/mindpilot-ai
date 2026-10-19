@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let userScore = 0;
   let currentCardIndex = 0;
 
-  // 1. Focus Timer Feature
+  // 1. Focus Timer
   let timerTime = 25 * 60;
   let timerInterval = null;
   const timerDisplay = document.getElementById('timerDisplay');
@@ -35,13 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
         timerDisplay.textContent = `${mins}:${secs}`;
         if (timerTime <= 0) {
           clearInterval(timerInterval);
-          alert("🎉 Focus session completed! Take a break.");
+          alert("🎉 Focus session completed!");
         }
       }, 1000);
     }
   });
 
-  // 2. Mode Tabs Switching
+  // 2. Mode Switching
   tabQuiz.addEventListener('click', () => {
     tabQuiz.classList.add('active');
     tabCards.classList.remove('active');
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFlashcard();
   });
 
-  // 3. Audio Text-To-Speech Feature
+  // 3. Audio Text-To-Speech
   function speakText(text) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -68,37 +68,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 4. Dynamic Quiz & Flashcards Generator
+  // 4. Dynamic Generator
   function generateQuizFromNotes(text) {
-    const cleanText = text.trim();
+    const cleanText = (text || '').trim();
     if (!cleanText || cleanText.length < 5) {
       return [
         {
-          q: "What is the primary topic of your study notes?",
-          options: ["Core Fundamentals", "General Overview", "Key Principles", "Main Summary"],
+          q: "What is the main takeaway from your study notes?",
+          options: ["Core Fundamentals & Key Concepts", "Unrelated Detail", "Secondary Information", "General Overview"],
           answer: 0,
-          explanation: "Notes highlight the core fundamental principles of the subject."
+          explanation: "Notes highlight core fundamentals and key concepts."
         }
       ];
     }
 
-    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 8);
+    let sentences = cleanText.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 6);
     if (sentences.length === 0) sentences = [cleanText];
 
     return sentences.map((sentence) => {
       const words = sentence.split(' ');
-      const keyWord = words.find(w => w.length > 4) || words[0] || 'Concept';
+      const keyWord = words.find(w => w.length > 4) || words[0] || 'Topic';
 
       return {
-        q: `Regarding: "${sentence.slice(0, 50)}..." what is key?`,
+        q: `Based on your notes: "${sentence.slice(0, 50)}${sentence.length > 50 ? '...' : ''}", what is the key point?`,
         options: [
           `Focuses on ${keyWord}`,
-          `Unrelated detail`,
-          `Secondary point`,
-          `None of these`
+          `An irrelevant topic`,
+          `Minor background info`,
+          `None of the above`
         ],
         answer: 0,
-        explanation: `Note details: "${sentence}"`
+        explanation: `Full detail: "${sentence}"`
       };
     }).slice(0, 5);
   }
@@ -132,11 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Quiz Flow Logic
-  startBtn.addEventListener('click', startQuiz);
-  document.getElementById('retryBtn').addEventListener('click', startQuiz);
+  // Quiz Execution Logic
+  startBtn.addEventListener('click', prepareAndStartQuiz);
+  document.getElementById('retryBtn').addEventListener('click', prepareAndStartQuiz);
 
-  function startQuiz() {
+  function prepareAndStartQuiz() {
+    const notes = notesField.value.trim();
+    dynamicQuiz = generateQuizFromNotes(notes);
     currentQIndex = 0;
     userScore = 0;
     analytics.style.display = 'none';
@@ -150,12 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
     quizContent.innerHTML = `
       <div style="margin-bottom:16px;">
         <span class="icon-chip">Question ${currentQIndex + 1} of ${dynamicQuiz.length}</span>
-        <button class="speak-btn" id="listenQBtn">🔊 Listen Question</button>
+        <button class="speak-btn" id="listenQBtn" type="button">🔊 Listen</button>
         <h3 style="margin: 10px 0 0; font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.4;">${qData.q}</h3>
       </div>
-      <div>
+      <div id="optionsContainer">
         ${qData.options.map((opt, i) => `
-          <button class="opt-btn" data-index="\${i}">
+          <button class="opt-btn" type="button" data-index="\${i}">
             <span><b>${String.fromCharCode(65 + i)}.</b>${opt}</span>
           </button>
         `).join('')}
@@ -164,10 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('listenQBtn').addEventListener('click', () => speakText(qData.q));
 
+    // Attach robust Event Listeners to option buttons
     const optButtons = quizContent.querySelectorAll('.opt-btn');
     optButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const selected = parseInt(e.currentTarget.dataset.index);
+        const btnClicked = e.currentTarget;
+        const selected = parseInt(btnClicked.getAttribute('data-index'), 10);
         checkAnswer(selected, qData.answer, optButtons);
       });
     });
@@ -178,11 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selected === correct) {
       buttons[selected].classList.add('correct');
       userScore++;
-      speakText("Correct answer!");
+      speakText("Correct!");
     } else {
       buttons[selected].classList.add('wrong');
       buttons[correct].classList.add('correct');
-      speakText("Incorrect answer!");
+      speakText("Incorrect!");
     }
 
     setTimeout(() => {
@@ -192,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         showAnalytics();
       }
-    }, 1200);
+    }, 1100);
   }
 
   function showAnalytics() {
@@ -207,16 +211,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreRing = document.querySelector('.score-ring');
     if (scoreRing) scoreRing.style.background = `conic-gradient(var(--primary) ${pct}%, var(--line) ${pct}%)`;
 
-    document.getElementById('scoreMessage').textContent = pct >= 80 ? "🏆 Mastered! Excellent performance." : "📚 Good try! Review flashcards to ace it.";
+    document.getElementById('scoreMessage').textContent = pct >= 80 ? "🏆 Mastered! Excellent understanding." : "📚 Good try! Review flashcards to ace it.";
   }
 
   genBtn.addEventListener('click', () => {
     const notes = notesField.value.trim();
-    if (!notes) { alert("Please paste notes first!"); return; }
+    if (!notes) { alert("Please paste some notes first!"); return; }
     dynamicQuiz = generateQuizFromNotes(notes);
     currentCardIndex = 0;
-    alert("✨ Quiz & Flashcards generated! Choose mode to start.");
-    startQuiz();
+    alert("✨ Quiz & Flashcards generated! Click 'Start Interactive Quiz' to begin.");
+    prepareAndStartQuiz();
   });
 
   // Local Storage & Theme

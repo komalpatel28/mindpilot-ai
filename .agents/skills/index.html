@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MindPilot AI - Next-Gen Study Hub</title>
+<title>MindPilot AI - Smart Interactive Study Companion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,14 +21,13 @@
       <div class="logo-icon">🚀</div>
       <div>
         <b>MindPilot</b><i>AI</i>
-        <span class="tagline-badge">Interactive AI Study Hub ✨</span>
+        <span class="tagline-badge">Study Made Fun & Easy ✨</span>
       </div>
     </div>
     <div class="top-actions">
-      <!-- Unique Feature: Focus Timer Widget -->
       <div class="timer-widget">
         <span id="timerDisplay">25:00</span>
-        <button id="timerBtn" class="btn icon-btn" title="Start Focus Timer">▶️</button>
+        <button id="timerBtn" class="icon-btn" title="Start Focus Timer">▶️</button>
       </div>
       <button class="btn theme-btn" id="themeToggle" type="button">🌙 Dark Mode</button>
     </div>
@@ -40,11 +39,11 @@
       <div class="panel-header">
         <span class="icon-chip">📝 Step 1</span>
         <h2>Paste Your Study Notes</h2>
-        <p class="muted">Paste any notes, code, or chapter summary below to generate quizzes & flashcards!</p>
+        <p class="muted">Paste any notes or topic below to generate instant Quizzes & Flashcards!</p>
       </div>
 
       <div class="field-container">
-        <textarea id="notesField" class="field" placeholder="Paste your study notes here (e.g. HTML basics, Science concepts, History notes)..."></textarea>
+        <textarea id="notesField" class="field" placeholder="Paste your notes here (e.g., HTML basics, Photosynthesis, World History)..."></textarea>
       </div>
 
       <div class="btn-group">
@@ -55,16 +54,16 @@
 
     <!-- Right Panel: Interactive Modes -->
     <section class="panel stage-panel" id="stage">
-      <!-- Mode Selector Tabs -->
+      <!-- Mode Tabs -->
       <div class="mode-tabs">
-        <button class="tab-btn active" id="tabQuiz">🎯 Smart Quiz</button>
-        <button class="tab-btn" id="tabCards">🎴 Flashcards (Unique)</button>
+        <button class="tab-btn active" id="tabQuiz" type="button">🎯 Smart Quiz</button>
+        <button class="tab-btn" id="tabCards" type="button">🎴 Flashcards</button>
       </div>
 
       <div class="card" id="quizCard">
         <div id="quizHeader" class="quiz-header">
           <h2 id="quizTitle">Interactive Practice Zone</h2>
-          <p class="muted" id="quizDesc">Click start to test your knowledge with audio explanations!</p>
+          <p class="muted" id="quizDesc">Ready to test your knowledge? Click below to start!</p>
         </div>
 
         <div id="quizContent" class="quiz-content">
@@ -74,12 +73,12 @@
           </div>
         </div>
 
-        <!-- Flashcards View (Hidden by default) -->
+        <!-- Flashcards View -->
         <div id="flashcardContent" class="flashcard-container" style="display: none;">
           <div class="flashcard" id="flashcard">
             <div class="card-inner">
               <div class="card-front">
-                <span class="card-tag">Question / Concept</span>
+                <span class="card-tag">Concept / Question</span>
                 <p id="cardQuestion">Paste notes and click Generate to see Flashcards!</p>
                 <span class="flip-hint">👆 Click card to flip</span>
               </div>
@@ -90,9 +89,9 @@
             </div>
           </div>
           <div class="card-nav">
-            <button class="btn ghost-btn" id="prevCard">← Previous</button>
+            <button class="btn ghost-btn" id="prevCard" type="button">← Previous</button>
             <span id="cardCounter">1 / 1</span>
-            <button class="btn ghost-btn" id="nextCard">Next →</button>
+            <button class="btn ghost-btn" id="nextCard" type="button">Next →</button>
           </div>
         </div>
 

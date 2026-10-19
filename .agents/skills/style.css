@@ -193,7 +193,7 @@ body {
 .start-hero { text-align: center; padding: 40px 10px; }
 .hero-emoji { font-size: 3.5rem; margin-bottom: 16px; }
 
-/* Option Buttons */
+/* Option Buttons - Clickable & Responsive */
 .opt-btn {
   width: 100%;
   text-align: left;
@@ -205,15 +205,21 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  user-select: none;
 }
-.opt-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); }
-.opt-btn.correct { background: var(--good-soft); border-color: var(--good); color: var(--good); }
-.opt-btn.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateX(4px);
+}
+.opt-btn.correct { background: var(--good-soft) !important; border-color: var(--good) !important; color: var(--good) !important; }
+.opt-btn.wrong { background: var(--bad-soft) !important; border-color: var(--bad) !important; color: var(--bad) !important; }
 
 .speak-btn {
   background: var(--primary-light);
