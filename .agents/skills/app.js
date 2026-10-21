@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCard();
   });
 
-  // Dynamic Generator from Notes with Smart Parsing
+  // Dynamic Generator from Notes
   function buildQuestionsFromNotes() {
     const text = notesField.value.trim();
     if (text.length > 5) {
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Simulate AI Loading state for a realistic hackathon feel
+  // Simulate AI Loading state
   genBtn.addEventListener('click', () => {
     loadingSpinner.style.display = 'block';
     genBtn.disabled = true;
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const scorePct = Math.round((score / questions.length) * 100);
       document.getElementById('scorePct').textContent = scorePct + '%';
 
-      // Save to LocalStorage High Score
+      // Save to LocalStorage
       let bestScore = localStorage.getItem('mindpilot_best') || 0;
       if (scorePct > bestScore) {
         bestScore = scorePct;
@@ -184,8 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Dark Mode Toggle
   themeToggle.addEventListener('click', () => {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    themeToggle.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    themeToggle.textContent = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
   });
 });

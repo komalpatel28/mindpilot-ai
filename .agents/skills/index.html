@@ -10,16 +10,26 @@
   <div class="wrap">
     <header class="top">
       <div class="brand">
-        <h2>🚀 MindPilot <span>AI</span></h2>
+        <h2>🚀 MindPilot <span class="ai-badge">AI</span></h2>
       </div>
       <button class="btn theme-btn" id="themeToggle" type="button">🌙 Dark Mode</button>
     </header>
 
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <span class="pill-tag">✨ Next-Gen Learning Engine</span>
+      <h1>Turn Any Study Notes Into Interactive Quizzes & Flashcards</h1>
+      <p>Supercharge your active recall with automated AI study sessions.</p>
+    </section>
+
     <main class="desk">
       <section class="panel">
-        <h2>Paste Your Study Notes</h2>
+        <div class="panel-header">
+          <h2>Paste Your Study Notes</h2>
+          <span class="badge">⚡ Instant AI</span>
+        </div>
         <textarea id="notesField" class="field" placeholder="Paste a long paragraph or multiple lines of notes here..."></textarea>
-        <button class="btn primary-btn" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
+        <button class="btn primary-btn glow-effect" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
         <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 15px; color: var(--primary); font-weight: bold;">
           ⏳ AI is analyzing your notes and generating questions...
         </div>
@@ -35,7 +45,7 @@
           <div class="start-hero">
             <h3>Ready to Test Your Knowledge?</h3>
             <p style="color: var(--muted); margin: 10px 0 20px;">Generate notes on the left or click start below.</p>
-            <button class="btn primary-btn" id="startBtn" type="button">🚀 Start Quiz</button>
+            <button class="btn primary-btn glow-effect" id="startBtn" type="button">🚀 Start Quiz</button>
           </div>
         </div>
 
@@ -62,7 +72,7 @@
           <h3>🎉 Study Session Complete!</h3>
           <p style="font-size: 1.5rem; font-weight: bold; margin: 15px 0;">Your Score: <span id="scorePct" style="color: var(--primary);">0%</span></p>
           <p style="color: var(--muted); margin-bottom: 15px;" id="highScoreText">Personal Best: 0%</p>
-          <button class="btn primary-btn" id="retryBtn" type="button">🔄 Retake Quiz</button>
+          <button class="btn primary-btn glow-effect" id="retryBtn" type="button">🔄 Retake Quiz</button>
         </div>
       </section>
     </main>
