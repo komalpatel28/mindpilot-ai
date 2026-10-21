@@ -20,6 +20,9 @@
         <h2>Paste Your Study Notes</h2>
         <textarea id="notesField" class="field" placeholder="Paste a long paragraph or multiple lines of notes here..."></textarea>
         <button class="btn primary-btn" id="genBtn" type="button">⚡ Generate Quiz & Cards</button>
+        <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 15px; color: var(--primary); font-weight: bold;">
+          ⏳ AI is analyzing your notes and generating questions...
+        </div>
       </section>
 
       <section class="panel">
@@ -58,6 +61,7 @@
         <div id="analytics" style="display: none; text-align: center;">
           <h3>🎉 Study Session Complete!</h3>
           <p style="font-size: 1.5rem; font-weight: bold; margin: 15px 0;">Your Score: <span id="scorePct" style="color: var(--primary);">0%</span></p>
+          <p style="color: var(--muted); margin-bottom: 15px;" id="highScoreText">Personal Best: 0%</p>
           <button class="btn primary-btn" id="retryBtn" type="button">🔄 Retake Quiz</button>
         </div>
       </section>

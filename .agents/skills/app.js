@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabQuiz = document.getElementById('tabQuiz');
   const tabCards = document.getElementById('tabCards');
   const themeToggle = document.getElementById('themeToggle');
+  const loadingSpinner = document.getElementById('loadingSpinner');
 
-  let questions = [
+  let defaultQuestions = [
     {
       q: "What is MindPilot AI primarily designed for?",
       options: ["Smart interactive learning & quizzes", "Video game streaming", "Weather forecasting", "Photo editing"],
@@ -23,11 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       q: "What format does MindPilot AI use for study flashcards?",
-      options: ["Interactive 3D flipped flashcards", "Static text lists", "Audio-only tapes", "Spreadsheets"],
+      options: ["Interactive flipped flashcards", "Static text lists", "Audio-only tapes", "Spreadsheets"],
       answer: 0
     }
   ];
 
+  let questions = [...defaultQuestions];
   let currentQ = 0;
   let score = 0;
   let cardIdx = 0;
@@ -49,30 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCard();
   });
 
-  // Dynamic Generator from Notes
+  // Dynamic Generator from Notes with Smart Parsing
   function buildQuestionsFromNotes() {
     const text = notesField.value.trim();
     if (text.length > 5) {
-      let sentences = text.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 5);
+      let sentences = text.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 8);
       if (sentences.length > 0) {
-        questions = sentences.map((sentence, idx) => ({
-          q: `Based on your notes: "${sentence.slice(0, 50)}..."`,
+        questions = sentences.map((sentence) => ({
+          q: `Based on your notes: "${sentence}"`,
           options: [
-            `Core concept: ${sentence.slice(0, 30)}...`,
-            `Unrelated distractor point`,
-            `Secondary background info`,
+            `Key Insight: ${sentence.slice(0, 40)}...`,
+            `Alternative theory point`,
+            `Unrelated conceptual distractor`,
             `None of the above`
           ],
           answer: 0
         }));
       }
+    } else {
+      questions = [...defaultQuestions];
     }
   }
 
+  // Simulate AI Loading state for a realistic hackathon feel
   genBtn.addEventListener('click', () => {
-    buildQuestionsFromNotes();
-    startQuizSession();
-    alert("✨ Quiz & Flashcards generated successfully from your notes!");
+    loadingSpinner.style.display = 'block';
+    genBtn.disabled = true;
+
+    setTimeout(() => {
+      buildQuestionsFromNotes();
+      loadingSpinner.style.display = 'none';
+      genBtn.disabled = false;
+      startQuizSession();
+      alert("✨ AI successfully analyzed your notes and built custom Quiz & Flashcards!");
+    }, 900);
   });
 
   startBtn.addEventListener('click', startQuizSession);
@@ -92,7 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentQ >= questions.length) {
       quizContent.style.display = 'none';
       analytics.style.display = 'block';
-      document.getElementById('scorePct').textContent = Math.round((score / questions.length) * 100) + '%';
+      const scorePct = Math.round((score / questions.length) * 100);
+      document.getElementById('scorePct').textContent = scorePct + '%';
+
+      // Save to LocalStorage High Score
+      let bestScore = localStorage.getItem('mindpilot_best') || 0;
+      if (scorePct > bestScore) {
+        bestScore = scorePct;
+        localStorage.setItem('mindpilot_best', bestScore);
+      }
+      document.getElementById('highScoreText').textContent = `Personal Best: ${bestScore}%`;
       return;
     }
 
@@ -125,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         currentQ++;
         renderQuestion();
-      }, 1100);
+      }, 1000);
     });
   }
 
@@ -137,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cardAnswer').textContent = questions[cardIdx].options[questions[cardIdx].answer];
     document.getElementById('cardCounter').textContent = `${cardIdx + 1} / ${questions.length}`;
     
-    // Reset view
     document.querySelector('.card-front').style.display = 'flex';
     document.querySelector('.card-back').style.display = 'none';
   }
